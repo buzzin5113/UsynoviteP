@@ -65,25 +65,28 @@ def parser(html, db, count):
         string = str(k)
         start = string.find('/child/?id=')
         anketa_id = string[start+11:start+28]
-
-        for i in range(7, 17):
-            if anketa_id[i] == '"':
-                anketa_id = anketa_id[:i]
-                break
+        anketa_id = anketa_id[:anketa_id.find('"')]
 
         print("Найдена анкета - {0}: порядковый номер {1}".format(anketa_id, count))
         count += 1
         if select_anketa(db, anketa_id) == 0:
             print("Анкеты {0} нет в БД".format(anketa_id))
-            
+
             msg = re.sub('</p>', '\n', str(k))
-            msg = re.sub('<[^<]+?>', '', msg) 
-            image = 'http://www.usynovite.ru/photos/bx/{0}.jpg'.format(anketa_id)
+            msg = re.sub('<[^<]+?>', '', msg)
+
+            for i in msg.splitlines():
+                if i.find(' родилась в ') > 0:
+                    age = int(print(i[-4:]))
+                if i.find(' родился в ') > 0:
+                    age = int(print(i[-4:]))
+
+            image = 'http://www.usynovite.ru/photos/{1}/{0}.jpg'.format(anketa_id, anketa_id[:2])
 
             telegram_send_image(image)
             telegram_send_text(msg)
 
-            insert_anketa(db, anketa_id)
+            #insert_anketa(db, anketa_id)
 
         else:
             print("Анкета {0} уже есть в БД".format(anketa_id))
