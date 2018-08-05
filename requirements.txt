@@ -1,3 +1,4 @@
 requests
 bs4
 py-postgresql
+python-telegram-bot
