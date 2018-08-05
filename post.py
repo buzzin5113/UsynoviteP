@@ -8,7 +8,7 @@ import time
 import secret
 
 
-def telegram_send(msg):
+def telegram_send_text(msg):
     """
     Send a message to a telegram user specified on chatId
     chat_id must be a number!
@@ -18,6 +18,17 @@ def telegram_send(msg):
     bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
     
     time.sleep(3)       # Чтобы не попасть в спам
+
+def telegram_send_image(url):
+    """
+    Send a image from url to a telegram user specified on chatId
+    chat_id must be a number!
+    """
+
+    bot = telegram.Bot(secret.token)
+    bot.send_photo(secret.chat_id, photo=url)
+
+    time.sleep(1)
 
 
 def select_anketa(db, anketa_id):
@@ -67,10 +78,11 @@ def parser(html, db, count):
             
             msg = re.sub('</p>', '\n', str(k))
             msg = re.sub('<[^<]+?>', '', msg) 
-            msg = 'http://www.usynovite.ru/child/?id={0}\n'.format(anketa_id) + \
-                  '<img "http://www.usynovite.ru/photos/bx/{0}.jpg" alt="">'.format(anketa_id) + msg
+            image = 'http://www.usynovite.ru/photos/bx/{0}.jpg'.format(anketa_id)
 
-            telegram_send(msg)
+            telegram_send_image(image)
+            telegram_send_text(msg)
+
             insert_anketa(db, anketa_id)
 
         else:
