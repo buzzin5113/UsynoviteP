@@ -26,8 +26,8 @@ def select_anketa(db, anketa_id):
     """
 
     query = 'SELECT trim(number) FROM anketa WHERE number = \'{0}\''.format(anketa_id)
-    insert = db.prepare(query)
-    return len(insert())
+    select = db.prepare(query)
+    return len(select())
 
 
 def insert_anketa(db, anketa_id):
@@ -36,8 +36,8 @@ def insert_anketa(db, anketa_id):
     """
 
     query = 'INSERT into anketa (number) values (\'{0}\')'.format(anketa_id)
-    select = db.prepare(query)
-    select()
+    insert = db.prepare(query)
+    insert()
     print("Анкета {0} добавлена в БД".format(anketa_id))
 
 
@@ -70,7 +70,7 @@ def parser(html, db, count):
             msg = 'http://www.usynovite.ru/child/?id={0}\n'.format(anketa_id) + \
                   '<img "http://www.usynovite.ru/photos/bx/{0}.jpg" alt="">'.format(anketa_id) + msg
 
-            #telegram_send(msg)
+            telegram_send(msg)
             insert_anketa(db, anketa_id)
 
         else:

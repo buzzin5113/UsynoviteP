@@ -22,4 +22,5 @@ create table anketa (id int PRIMARY KEY, number varchar(20));
 python3.6 -m venv /opt/UsynoviteP
 source ./bin/activate
 pip install --upgrade pip
+pip install --upgrade -r requirements.txt
 
