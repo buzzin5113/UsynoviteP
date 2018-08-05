@@ -1,8 +1,8 @@
-import requests
 from bs4 import BeautifulSoup
 import postgresql
-import telegram
 import re
+import requests
+import telegram
 import time
 
 import secret
@@ -15,9 +15,13 @@ def telegram_send_text(msg):
     """
 
     bot = telegram.Bot(secret.token)
-    bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
-    
-    time.sleep(3)       # Чтобы не попасть в спам
+    try:
+        bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
+        time.sleep(1)  # Чтобы не попасть в спам
+        return True
+    except Exception:
+        return False
+
 
 def telegram_send_image(url):
     """
@@ -26,9 +30,12 @@ def telegram_send_image(url):
     """
 
     bot = telegram.Bot(secret.token)
-    bot.send_photo(secret.chat_id, photo=url)
-
-    time.sleep(1)
+    try:
+        bot.send_photo(secret.chat_id, photo=url)
+        time.sleep(1)
+        return True
+    except Exception:
+        return False
 
 
 def select_anketa(db, anketa_id):
@@ -57,6 +64,7 @@ def parser(html, db, count):
     Парсинг HTML страницы
     """
 
+    age = 1990
     soup = BeautifulSoup(html, features="html.parser")
     div = soup('div', class_='search-bd__slaider--content')
 
@@ -81,13 +89,15 @@ def parser(html, db, count):
                 if i.find(' родился в ') > 0:
                     age = int(i[-4:])
 
+            msg = 'http://www.usynovite.ru/child/?id={0}\n'.format(anketa_id) + msg
             image = 'http://www.usynovite.ru/photos/{1}/{0}.jpg'.format(anketa_id, anketa_id[:2])
 
             if age > 2000:
                 telegram_send_image(image)
-                telegram_send_text(msg)
-
-            #insert_anketa(db, anketa_id)
+                if telegram_send_text(msg):
+                    insert_anketa(db, anketa_id)
+            else:
+                insert_anketa(db, anketa_id)
 
         else:
             print("Анкета {0} уже есть в БД".format(anketa_id))
@@ -99,7 +109,7 @@ def main():
 
     db = postgresql.open(secret.db)
 
-    count = 1;
+    count = 1
     count_new = 0
 
     payload = {'region': '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32, \
