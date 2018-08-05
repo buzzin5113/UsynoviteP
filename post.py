@@ -15,7 +15,7 @@ def telegram_send(msg):
     """
 
     bot = telegram.Bot(secret.token)
-    #bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
+    bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
     
     time.sleep(3)       # Чтобы не попасть в спам
 
