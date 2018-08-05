@@ -77,14 +77,15 @@ def parser(html, db, count):
 
             for i in msg.splitlines():
                 if i.find(' родилась в ') > 0:
-                    age = int(print(i[-4:]))
+                    age = int(i[-4:])
                 if i.find(' родился в ') > 0:
-                    age = int(print(i[-4:]))
+                    age = int(i[-4:])
 
             image = 'http://www.usynovite.ru/photos/{1}/{0}.jpg'.format(anketa_id, anketa_id[:2])
 
-            telegram_send_image(image)
-            telegram_send_text(msg)
+            if age > 2011:
+                telegram_send_image(image)
+                telegram_send_text(msg)
 
             #insert_anketa(db, anketa_id)
 
