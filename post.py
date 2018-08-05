@@ -83,7 +83,7 @@ def parser(html, db, count):
 
             image = 'http://www.usynovite.ru/photos/{1}/{0}.jpg'.format(anketa_id, anketa_id[:2])
 
-            if age > 2011:
+            if age > 2000:
                 telegram_send_image(image)
                 telegram_send_text(msg)
 
