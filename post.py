@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import logging
 import postgresql
 import re
 import requests
@@ -19,7 +20,8 @@ def telegram_send_text(msg):
         bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
         time.sleep(1)  # Чтобы не попасть в спам
         return True
-    except Exception:
+    except telegram.TelegramError:
+        logging.error('Ошибка отправки текстового сообщения в телеграм')
         return False
 
 
@@ -34,7 +36,8 @@ def telegram_send_image(url):
         bot.send_photo(secret.chat_id, photo=url)
         time.sleep(1)
         return True
-    except Exception:
+    except telegram.TelegramError:
+        logging.error('Ошибка отправки изображения в телеграм')
         return False
 
 
@@ -45,7 +48,7 @@ def select_anketa(db, anketa_id):
 
     query = 'SELECT trim(number) FROM anketa WHERE number = \'{0}\''.format(anketa_id)
     select = db.prepare(query)
-    return len(select())
+    return 1 if select() else 0
 
 
 def insert_anketa(db, anketa_id):
@@ -56,7 +59,14 @@ def insert_anketa(db, anketa_id):
     query = 'INSERT into anketa (number) values (\'{0}\')'.format(anketa_id)
     insert = db.prepare(query)
     insert()
-    print("Анкета {0} добавлена в БД".format(anketa_id))
+    logging.info("Анкета {0} добавлена в БД".format(anketa_id))
+
+
+def logging_set():
+    """
+    Настройка логгирования
+    """
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG,datefmt='%Y%m%d %H%M%S')
 
 
 def parser(html, db, count):
@@ -75,18 +85,16 @@ def parser(html, db, count):
         anketa_id = string[start+11:start+28]
         anketa_id = anketa_id[:anketa_id.find('"')]
 
-        print("Найдена анкета - {0}: порядковый номер {1}".format(anketa_id, count))
+        logging.info("Найдена анкета - {0}: порядковый номер {1}".format(anketa_id, count))
         count += 1
         if select_anketa(db, anketa_id) == 0:
-            print("Анкеты {0} нет в БД".format(anketa_id))
+            logging.info("Анкеты {0} нет в БД".format(anketa_id))
 
-            msg = re.sub('</p>', '\n', str(k))
-            msg = re.sub('<[^<]+?>', '', msg)
+            msg = re.sub('</p>', '\n', str(k))      # Из <p> делаем перевод строки
+            msg = re.sub('<[^<]+?>', '', msg)       # Убираем все теги HTML
 
             for i in msg.splitlines():
-                if i.find(' родилась в ') > 0:
-                    age = int(i[-4:])
-                if i.find(' родился в ') > 0:
+                if i.find(' родилась в ') > 0 or i.find(' родился в ') > 0:
                     age = int(i[-4:])
 
             msg = 'http://www.usynovite.ru/child/?id={0}\n'.format(anketa_id) + msg
@@ -96,16 +104,20 @@ def parser(html, db, count):
                 telegram_send_image(image)
                 if telegram_send_text(msg):
                     insert_anketa(db, anketa_id)
+                else:
+                    logging.info('Не записываем анкету в БД')
             else:
                 insert_anketa(db, anketa_id)
 
         else:
-            print("Анкета {0} уже есть в БД".format(anketa_id))
+            logging.info("Анкета {0} уже есть в БД".format(anketa_id))
 
     return count
 
 
 def main():
+
+    logging_set()
 
     db = postgresql.open(secret.db)
 
