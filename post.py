@@ -66,7 +66,11 @@ def logging_set():
     """
     Настройка логгирования
     """
-    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s', level=logging.DEBUG,datefmt='%Y%m%d %H%M%S')
+    handlers = [logging.FileHandler('./post.log'), logging.StreamHandler()]
+    logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
+                        level=logging.DEBUG,
+                        datefmt='%Y%m%d %H%M%S',
+                        handlers=handlers)
 
 
 def parser(html, db, count):
@@ -118,6 +122,7 @@ def parser(html, db, count):
 def main():
 
     logging_set()
+    logging.info("========== Старт ==========")
 
     db = postgresql.open(secret.db)
 
@@ -145,6 +150,8 @@ def main():
             end = 0
 
     db.close()
+
+    logging.info("========== Стоп ==========")
 
 
 if __name__ == "__main__":
