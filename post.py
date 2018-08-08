@@ -38,6 +38,8 @@ def telegram_send_image(url):
         return True
     except telegram.TelegramError:
         logging.error('Ошибка отправки изображения в телеграм')
+        msg = "Фотография не найдена"
+        telegram_send_text(msg)
         return False
 
 
@@ -104,7 +106,7 @@ def parser(html, db, count):
             msg = 'http://www.usynovite.ru/child/?id={0}\n'.format(anketa_id) + msg
             image = 'http://www.usynovite.ru/photos/{1}/{0}.jpg'.format(anketa_id, anketa_id[:2])
 
-            if age > 2000:
+            if age > 2011:
                 telegram_send_image(image)
                 if telegram_send_text(msg):
                     insert_anketa(db, anketa_id)
@@ -130,9 +132,15 @@ def main():
     count_new = 0
 
     payload = {'region': '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32, \
-                33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65, \
-                66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91', \
-                'sex': '', 'adobtion': '', 'year': '', 'family': '', 'month': '', 'names': '', 'personal_data': '1'}
+               33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65, \
+               66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91',
+               'sex': '',
+               'adobtion': '',
+               'year': '',
+               'family': '',
+               'month': '',
+               'names': '',
+               'personal_data': '1'}
 
     s = requests.session()
     r = s.post("http://www.usynovite.ru/db/", data=payload)
