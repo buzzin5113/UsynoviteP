@@ -113,6 +113,7 @@ def parser(html, db, count):
                 else:
                     logging.info('Не записываем анкету в БД')
             else:
+                logging.info("Год рождения - {0}".format(age))
                 insert_anketa(db, anketa_id)
 
         else:
