@@ -70,7 +70,7 @@ def logging_set():
     """
     handlers = [logging.FileHandler('./post.log'), logging.StreamHandler()]
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
-                        level=logging.DEBUG,
+                        level=logging.INFO,
                         datefmt='%Y%m%d %H%M%S',
                         handlers=handlers)
 
