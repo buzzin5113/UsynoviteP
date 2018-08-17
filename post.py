@@ -18,7 +18,7 @@ def telegram_send_text(msg):
     bot = telegram.Bot(secret.token)
     try:
         bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
-        time.sleep(1)  # Чтобы не попасть в спам
+        time.sleep(5)  # Чтобы не попасть в спам
         return True
     except telegram.TelegramError:
         logging.error('Ошибка отправки текстового сообщения в телеграм')
@@ -34,7 +34,7 @@ def telegram_send_image(url):
     bot = telegram.Bot(secret.token)
     try:
         bot.send_photo(secret.chat_id, photo=url)
-        time.sleep(1)
+        time.sleep(5)
         return True
     except telegram.TelegramError:
         logging.error('Ошибка отправки изображения в телеграм')
@@ -133,9 +133,9 @@ def main():
     count_new = 0
 
     multipart_data = MultipartEncoder(
-        fields={'region': '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32, \
-               33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65, \
-               66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91',
+        fields={'region': '1,2,22,28,29,30,3,31,32,4,33,34,35,36,5,80,75,85,37,19,83,38,6,39,40,41,84,8,9,42,43,10'
+                          ',44,23,24,91,45,46,47,48,49,11,12,77,50,51,82,52,53,54,55,56,57,58,59,25,60,7,15,61,62,'
+                          '63,78,64,21,65,66,90,13,67,26,68,14,69,70,71,72,16,73,27,17,88,74,18,20,79,89,76',
                'sex': '',
                'adobtion': '',
                'year': '',
