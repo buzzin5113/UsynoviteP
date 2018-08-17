@@ -8,3 +8,4 @@ py-postgresql==1.2.1
 python-telegram-bot==10.1.0
 requests==2.19.1
 urllib3==1.23
+requests_toolbelt
