@@ -18,8 +18,6 @@ def telegram_send_text(msg):
     chat_id must be a number!
     """
 
-    return True
-
     bot = telegram.Bot(secret.token)
     try:
         bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
@@ -35,8 +33,6 @@ def telegram_send_image(url):
     Send a image from url to a telegram user specified on chatId
     chat_id must be a number!
     """
-
-    return True
 
     bot = telegram.Bot(secret.token)
     try:
@@ -78,7 +74,8 @@ def logging_set():
     """
     Настройка логгирования
     """
-    handlers = [logging.FileHandler('./logs/post{0}.log'.format(time.strftime("%Y%m%d-%H%M%S"))), logging.StreamHandler()]
+    handlers = [logging.FileHandler('./logs/post{0}.log'.format(time.strftime("%Y%m%d-%H%M%S"))),
+                logging.StreamHandler()]
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                         level=logging.INFO,
                         datefmt='%Y%m%d %H%M%S',
@@ -189,16 +186,17 @@ def main():
         fields={'region': '1,2,22,28,29,30,3,31,32,4,33,34,35,36,5,80,75,85,37,19,83,38,6,39,40,41,84,8,9,42,43,10'
                           ',44,23,24,91,45,46,47,48,49,11,12,77,50,51,82,52,53,54,55,56,57,58,59,25,60,7,15,61,62,'
                           '63,78,64,21,65,66,90,13,67,26,68,14,69,70,71,72,16,73,27,17,88,74,18,20,79,89,76',
-               'sex': '',
-               'adobtion': '',
-               'year': '',
-               'family': '',
-               'month': '',
-               'names': '',
-               'personal_data': '1'})
+                'sex': '',
+                'adobtion': '',
+                'year': '',
+                'family': '',
+                'month': '',
+                'names': '',
+                'personal_data': '1'})
 
     s = requests.session()
-    r = s.post('http://www.usynovite.ru/db/', data=multipart_data, headers={'Content-Type': multipart_data.content_type})
+    r = s.post('http://www.usynovite.ru/db/', data=multipart_data,
+               headers={'Content-Type': multipart_data.content_type})
     html = r.text
     count = parser(html, db_new, db_old, count)
 
@@ -219,4 +217,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
