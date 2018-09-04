@@ -7,13 +7,16 @@
 
 Инструкция по настройке и запуску расчитана на ОС CentOS 7.x
 
-#### Введение
-
-    Я рекомендую запускать скрипт в контейнере Docker
+Я рекомендую запускать скрипт в контейнере Docker
 
 #### Установка Docker
 
-    fjshkjfhskf
+    yum install -y yum-utils device-mapper-persistent-data lvm2
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    yum-config-manager --enable docker-ce-edge
+    yum install docker-ce
+    systemctl enable docker
+    systemctl start docker
 
 #### Настройка
 
@@ -22,4 +25,18 @@
     cd /opt/UsynoviteP
     mkdir logs
     mkdir data
+    touch secret.py
+
+#### Отредактировать файл secret.py
+
+    chat_id = "XXX"   #ID чата в который будут отсылаться анкеты         
+    token = "YYY"     #ID бота в Telegram
+    
+#### Создание образа docker
+    
+    docker build -t usynovitep .
+   
+#### Запуск образа
+
+    docker run -v /opt/UsynoviteP:/app usynovitep:latest
     
