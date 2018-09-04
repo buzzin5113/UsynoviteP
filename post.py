@@ -23,8 +23,9 @@ def telegram_send_text(msg):
         bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
         time.sleep(5)  # Чтобы не попасть в спам
         return True
-    except telegram.TelegramError:
+    except telegram.TelegramError as error_text:
         logging.error('Ошибка отправки текстового сообщения в телеграм')
+        logging.error(error_text)
         return False
 
 
@@ -39,8 +40,9 @@ def telegram_send_image(url):
         bot.send_photo(secret.chat_id, photo=url)
         time.sleep(5)
         return True
-    except telegram.TelegramError:
+    except telegram.TelegramError as error_text:
         logging.error('Ошибка отправки изображения в телеграм')
+        logging.error(error_text)
         msg = "Фотография не найдена"
         telegram_send_text(msg)
         return False
