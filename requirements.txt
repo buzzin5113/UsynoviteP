@@ -5,7 +5,7 @@ chardet
 future
 idna
 py-postgresql
-python-telegram-bot
+python-telegram-bot==10.1.0
 requests
 urllib3
 requests_toolbelt
