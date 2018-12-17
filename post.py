@@ -157,7 +157,7 @@ def parser(html, db_new, db_old, count):
 
         if select_anketa(db_old, anketa_id) == 0:
             logging.info("Анкеты {0} нет в БД".format(anketa_id))
-            if age > 2011:
+            if age > 1900:
                 telegram_send_image(image)
                 if telegram_send_text(msg):
                     insert_anketa(db_new, anketa_id, age)
@@ -178,6 +178,16 @@ def main():
 
     logging_set()
     logging.info("========== Start ==========")
+
+    telegram_send_text("""
+    Добрый день.
+    Это канал в который в автоматическом режиме выкладываются новые анкеты с сайта usynovite.ru.
+    Процесс поиска новых анкет запускается каждый день в 8 утра МСК.
+    
+    Я не имею какого-либо отношения к сайту usynovite.ru, органам опеки, департаменту государственной политики в сфере защиты прав детей. 
+    По всем вопросам можно обращаться в телеграм: https://t.me/alexeytimofeew.
+    """)
+
 
     db_old = db_old_connect()
     db_new = db_new_connect()
