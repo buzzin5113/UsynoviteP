@@ -61,8 +61,7 @@ def select_anketa(db_old, db_new, anketa_id):
     c_new.execute("select count(*) from anketa where anketa_id = '{0}'".format(anketa_id))
     count_new = c_new.fetchone()
     
-    logging.info(len(count_old), len(count_new))
-    if len(count_old) == 0 and len(count_new) == 0:
+    if count_old[0] == 0 and count_new[0] == 0:
         return 1
     else:
         return 0
