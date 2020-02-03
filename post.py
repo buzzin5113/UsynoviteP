@@ -64,7 +64,7 @@ def select_anketa(db_old, db_new, anketa_id):
     logging.info(count_old[0])
     logging.info(count_new[0])
     
-    if count_old[0] == 0 and count_new[0] == 0:
+    if count_old[0] > 0 or count_new[0] > 0:
         return 1
     else:
         return 0
