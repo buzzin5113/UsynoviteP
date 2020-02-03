@@ -20,7 +20,7 @@ def telegram_send_text(msg):
 
     bot = telegram.Bot(secret.token)
     try:
-        bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
+        #bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
         time.sleep(5)  # Чтобы не попасть в спам
         return True
     except telegram.TelegramError as error_text:
@@ -37,26 +37,31 @@ def telegram_send_image(url):
 
     bot = telegram.Bot(secret.token)
     try:
-        bot.send_photo(secret.chat_id, photo=url)
+        #bot.send_photo(secret.chat_id, photo=url)
         time.sleep(5)
         return True
     except telegram.TelegramError as error_text:
         logging.error('Ошибка отправки изображения в телеграм')
         logging.error(error_text)
         msg = "Фотография не найдена"
-        telegram_send_text(msg)
+        #telegram_send_text(msg)
         return False
 
 
-def select_anketa(db_old, anketa_id):
+def select_anketa(db_old, db_new, anketa_id):
     """
     Проверка наличия в БД номера анкеты
     """
 
-    c = db_old.cursor()
-    c.execute("select count(*) from anketa where anketa_id = '{0}'".format(anketa_id))
-    count = c.fetchone()
-    if count[0]:
+    c_old = db_old.cursor()
+    c_old.execute("select count(*) from anketa where anketa_id = '{0}'".format(anketa_id))
+    count_old = c_old.fetchone()
+    
+    c_new = db_new.cursor()
+    c_new.execute("select count(*) from anketa where anketa_id = '{0}'".format(anketa_id))
+    count_new = c_new.fetchone()
+    
+    if len(count_old) == 0 and len(count_new) == 0:
         return 1
     else:
         return 0
@@ -155,7 +160,7 @@ def parser(html, db_new, db_old, count):
 
         logging.info("Год рождения - {0}".format(age))
 
-        if select_anketa(db_old, anketa_id) == 0:
+        if select_anketa(db_old, db_new, anketa_id) == 0:
             logging.info("Анкеты {0} нет в БД".format(anketa_id))
             if age > 1900:
                 telegram_send_image(image)
