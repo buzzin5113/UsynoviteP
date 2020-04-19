@@ -18,10 +18,10 @@ def telegram_send_text(msg):
     chat_id must be a number!
     """
 
-    #bot = telegram.Bot(secret.token)
+    bot = telegram.Bot(secret.token)
     try:
-        # bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
-        #time.sleep(5)  # Чтобы не попасть в спам
+        bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
+        time.sleep(10)  # Чтобы не попасть в спам
         return True
     except telegram.TelegramError as error_text:
         logging.error('Ошибка отправки текстового сообщения в телеграм')
@@ -35,16 +35,16 @@ def telegram_send_image(url):
     chat_id must be a number!
     """
 
-    #bot = telegram.Bot(secret.token)
+    bot = telegram.Bot(secret.token)
     try:
-        #bot.send_photo(secret.chat_id, photo=url)
-        #time.sleep(5)
+        bot.send_photo(secret.chat_id, photo=url)
+        time.sleep(10)
         return True
     except telegram.TelegramError as error_text:
         logging.error('Ошибка отправки изображения в телеграм')
         logging.error(error_text)
-        msg = "Фотография не найдена"
-        telegram_send_text(msg)
+        # msg = "Фотография не найдена"
+        # telegram_send_text(msg)
         return False
 
 
