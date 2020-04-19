@@ -18,10 +18,10 @@ def telegram_send_text(msg):
     chat_id must be a number!
     """
 
-    bot = telegram.Bot(secret.token)
+    #bot = telegram.Bot(secret.token)
     try:
-        bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
-        time.sleep(5)  # Чтобы не попасть в спам
+        # bot.sendMessage(secret.chat_id, text=msg,  parse_mode=telegram.ParseMode.HTML)
+        #time.sleep(5)  # Чтобы не попасть в спам
         return True
     except telegram.TelegramError as error_text:
         logging.error('Ошибка отправки текстового сообщения в телеграм')
@@ -35,10 +35,10 @@ def telegram_send_image(url):
     chat_id must be a number!
     """
 
-    bot = telegram.Bot(secret.token)
+    #bot = telegram.Bot(secret.token)
     try:
-        bot.send_photo(secret.chat_id, photo=url)
-        time.sleep(5)
+        #bot.send_photo(secret.chat_id, photo=url)
+        #time.sleep(5)
         return True
     except telegram.TelegramError as error_text:
         logging.error('Ошибка отправки изображения в телеграм')
@@ -48,43 +48,38 @@ def telegram_send_image(url):
         return False
 
 
-def select_anketa(db_old, db_new, anketa_id):
+def select_anketa(db, anketa_id):
     """
     Проверка наличия в БД номера анкеты
     """
 
-    c_old = db_old.cursor()
-    c_old.execute("select count(*) from anketa where anketa_id = '{0}'".format(anketa_id))
-    count_old = c_old.fetchone()
+    c = db.cursor()
+    c.execute("select count(*) from anketa where anketa_id = '{0}'".format(anketa_id))
+    count = c.fetchone()
     
-    c_new = db_new.cursor()
-    c_new.execute("select count(*) from anketa where anketa_id = '{0}'".format(anketa_id))
-    count_new = c_new.fetchone()
+    # logging.info(count[0])
     
-    logging.info(count_old[0])
-    logging.info(count_new[0])
-    
-    if count_old[0] > 0 or count_new[0] > 0:
+    if count[0] > 0:
         return 1
     else:
         return 0
 
 
-def insert_anketa(db_new, anketa_id, age):
+def insert_anketa(db, anketa_id, age):
     """
     Вставка номера анкеты в БД
     """
 
-    c = db_new.cursor()
+    c = db.cursor()
     c.execute("INSERT INTO anketa VALUES ('{0}','{1}')".format(anketa_id, age))
-    db_new.commit()
+    db.commit()
 
 
 def logging_set():
     """
     Настройка логгирования
     """
-    handlers = [logging.FileHandler('./logs/post{0}.log'.format(time.strftime("%Y%m%d-%H%M%S"))),
+    handlers = [logging.FileHandler('./logs/post{0}.log'.format(time.strftime("%Y%m%d-%H%M%S")), 'a', 'utf-8'),
                 logging.StreamHandler()]
     logging.basicConfig(format='%(asctime)s:%(levelname)s:%(message)s',
                         level=logging.INFO,
@@ -92,26 +87,9 @@ def logging_set():
                         handlers=handlers)
 
 
-def db_old_connect():
+def db_connect():
 
-    file_path = './data/usynovite_old.db'
-
-    if os.path.exists(file_path):
-        conn = sqlite3.connect(file_path)
-    else:
-        conn = sqlite3.connect(file_path)
-        c = conn.cursor()
-        c.execute('''CREATE TABLE anketa (anketa_id text, age int)''')
-
-    return conn
-
-
-def db_new_connect():
-    """
-    Подключение к БД
-    """
-
-    file_path = './data/usynovite_new.db'
+    file_path = './data/usynovite.db'
 
     if os.path.exists(file_path):
         conn = sqlite3.connect(file_path)
@@ -123,15 +101,12 @@ def db_new_connect():
     return conn
 
 
-def db_close(db_new, db_old):
+def db_close(db):
 
-    db_new.close()
-    db_old.close()
-    shutil.move('./data/usynovite_old.db', './data/usynovite_old_{0}.db'.format(time.strftime("%Y%m%d-%H%M%S")))
-    shutil.move('./data/usynovite_new.db', './data/usynovite_old.db')
+    db.close()
 
 
-def parser(html, db_new, db_old, count):
+def parser(html, db, count):
     """
     Парсинг HTML страницы
     """
@@ -163,20 +138,20 @@ def parser(html, db_new, db_old, count):
 
         logging.info("Год рождения - {0}".format(age))
 
-        if select_anketa(db_old, db_new, anketa_id) == 0:
+        if select_anketa(db, anketa_id) == 0:
             logging.info("Анкеты {0} нет в БД".format(anketa_id))
             if age > 1900:
                 telegram_send_image(image)
                 if telegram_send_text(msg):
-                    insert_anketa(db_new, anketa_id, age)
+                    insert_anketa(db, anketa_id, age)
                     logging.info('Анкета {0} добавлена в БД'.format(anketa_id))
                 else:
                     logging.info('Не записываем анкету в БД')
             else:
-                insert_anketa(db_new, anketa_id, age)
+                insert_anketa(db, anketa_id, age)
                 logging.info('Анкета {0} добавлена в БД'.format(anketa_id))
         else:
-            insert_anketa(db_new, anketa_id, age)
+            insert_anketa(db, anketa_id, age)
             logging.info("Анкета {0} уже есть в БД".format(anketa_id))
 
     return count
@@ -197,9 +172,8 @@ def main():
     """)
 
 
-    db_old = db_old_connect()
-    db_new = db_new_connect()
-
+    db = db_connect()
+ 
     count = 1
 
     multipart_data = MultipartEncoder(
@@ -218,19 +192,19 @@ def main():
     r = s.post('http://www.usynovite.ru/db/', data=multipart_data,
                headers={'Content-Type': multipart_data.content_type})
     html = r.text
-    count = parser(html, db_new, db_old, count)
+    count = parser(html, db, count)
 
     end = 1
     while end > 0:
         r = s.get("http://www.usynovite.ru/db/?p={0}&last-search".format(str(end+1)))
         if (len(r.content) > 55000) and end < 6000:
             html = r.text
-            count = parser(html, db_new, db_old, count)
+            count = parser(html, db, count)
             end += 1
         else:
             end = 0
 
-    db_close(db_new, db_old)
+    db_close(db)
 
     logging.info("========== Stop ==========")
 
