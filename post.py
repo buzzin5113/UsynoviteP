@@ -38,7 +38,7 @@ def telegram_send_image(url):
     bot = telegram.Bot(secret.token)
     try:
         bot.send_photo(secret.chat_id, photo=url)
-        time.sleep(10)
+        time.sleep(5)
         return True
     except telegram.TelegramError as error_text:
         logging.error('Ошибка отправки изображения в телеграм')
