@@ -151,7 +151,7 @@ def parser(html, db, count):
                 insert_anketa(db, anketa_id, age)
                 logging.info('Анкета {0} добавлена в БД'.format(anketa_id))
         else:
-            insert_anketa(db, anketa_id, age)
+            #insert_anketa(db, anketa_id, age)
             logging.info("Анкета {0} уже есть в БД".format(anketa_id))
 
     return count
@@ -164,8 +164,7 @@ def main():
 
     telegram_send_text("""
     Добрый день.
-    Это канал в который в автоматическом режиме выкладываются новые анкеты с сайта usynovite.ru.
-    Процесс поиска новых анкет запускается каждый день в 8 утра МСК.
+    Это канал в который выкладываются новые анкеты с сайта usynovite.ru.
     
     Я не имею какого-либо отношения к сайту usynovite.ru, органам опеки, департаменту государственной политики в сфере защиты прав детей. 
     По всем вопросам можно обращаться в телеграм: https://t.me/alexeytimofeew.
