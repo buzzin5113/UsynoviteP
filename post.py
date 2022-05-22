@@ -111,8 +111,12 @@ def parser(html, db, count):
     Парсинг HTML страницы
     """
 
+    logging.info("Before")
+
     age = 1990
+    logging.info("soup")
     soup = BeautifulSoup(html, features="html.parser")
+    logging.info("Next soup")
     div = soup('div', class_='search-bd__slaider--content')
 
     for k in div:
@@ -133,8 +137,8 @@ def parser(html, db, count):
                 age = int(i[-4:])
                 break
 
-        msg = 'http://www.usynovite.ru/child/?id={0}\n'.format(anketa_id) + msg
-        image = 'http://www.usynovite.ru/photos/{1}/{0}.jpg'.format(anketa_id, anketa_id[:2])
+        msg = 'https://www.usynovite.ru/child/?id={0}\n'.format(anketa_id) + msg
+        image = 'https://www.usynovite.ru/photos/{1}/{0}.jpg'.format(anketa_id, anketa_id[:2])
 
         logging.info("Год рождения - {0}".format(age))
 
@@ -162,13 +166,13 @@ def main():
     logging_set()
     logging.info("========== Start ==========")
 
-    telegram_send_text("""
-    Добрый день.
-    Это канал в который выкладываются новые анкеты с сайта usynovite.ru.
-    
-    Я не имею какого-либо отношения к сайту usynovite.ru, органам опеки, департаменту государственной политики в сфере защиты прав детей. 
-    По всем вопросам можно обращаться в телеграм: https://t.me/alexeytimofeew.
-    """)
+#    telegram_send_text("""
+#    Добрый день.
+#    Это канал в который выкладываются новые анкеты с сайта usynovite.ru.
+#    
+#    Я не имею какого-либо отношения к сайту usynovite.ru, органам опеки, департаменту государственной политики в сфере защиты прав детей. 
+#    По всем вопросам можно обращаться в телеграм: https://t.me/alexeytimofeew.
+#    """)
 
 
     db = db_connect()
@@ -176,9 +180,7 @@ def main():
     count = 1
 
     multipart_data = MultipartEncoder(
-        fields={'region': '1,2,22,28,29,30,3,31,32,4,33,34,35,36,5,80,75,85,37,19,83,38,6,39,40,41,84,8,9,42,43,10'
-                          ',44,23,24,91,45,46,47,48,49,11,12,77,50,51,82,52,53,54,55,56,57,58,59,25,60,7,15,61,62,'
-                          '63,78,64,21,65,66,90,13,67,26,68,14,69,70,71,72,16,73,27,17,88,74,18,20,79,89,76',
+        fields={'region': '',
                 'sex': '',
                 'adobtion': '',
                 'year': '',
@@ -187,15 +189,17 @@ def main():
                 'names': '',
                 'personal_data': '1'})
 
+
     s = requests.session()
-    r = s.post('http://www.usynovite.ru/db/', data=multipart_data,
+    r = s.post('https://www.usynovite.ru/db/', data=multipart_data,
                headers={'Content-Type': multipart_data.content_type})
     html = r.text
     count = parser(html, db, count)
 
     end = 1
     while end > 0:
-        r = s.get("http://www.usynovite.ru/db/?p={0}&last-search".format(str(end+1)))
+        logging.info('Get page {0}'.format(end+1))
+        r = s.get("https://www.usynovite.ru/db/?p={0}&last-search".format(str(end+1)))
         if (len(r.content) > 55000) and end < 6000:
             html = r.text
             count = parser(html, db, count)
